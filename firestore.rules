@@ -1,0 +1,83 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Global Safety Net default catch-all
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Master safety helper functions
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isEmailVerified() {
+      return request.auth.token.email_verified == true;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isValidUserProfile(data) {
+      return data.keys().hasAll(['uid', 'email', 'displayName', 'rank', 'solvedCount', 'totalSolved', 'streak', 'topicMastery', 'heatmapData']) &&
+             data.keys().size() >= 9 &&
+             data.uid is string && data.uid.size() <= 128 &&
+             data.email is string && data.email.size() <= 128 &&
+             data.displayName is string && data.displayName.size() <= 128 &&
+             (data.photoURL == null || (data.photoURL is string && data.photoURL.size() <= 500)) &&
+             data.rank is int &&
+             data.totalSolved is int && data.totalSolved >= 0 &&
+             data.streak is int && data.streak >= 0 &&
+             data.solvedCount is map &&
+             data.topicMastery is map &&
+             data.heatmapData is map;
+    }
+
+    function isValidSubmission(data) {
+      return data.keys().hasAll(['id', 'userId', 'problemId', 'problemTitle', 'difficulty', 'language', 'code', 'status', 'runtime', 'memory', 'timestamp']) &&
+             data.keys().size() >= 11 &&
+             data.id is string && data.id.size() <= 128 &&
+             data.userId is string && data.userId.size() <= 128 &&
+             data.problemId is string && data.problemId.size() <= 128 &&
+             data.problemTitle is string && data.problemTitle.size() <= 128 &&
+             data.difficulty is string && (data.difficulty == 'Easy' || data.difficulty == 'Medium' || data.difficulty == 'Hard') &&
+             data.language is string && data.language.size() <= 64 &&
+             data.code is string && data.code.size() <= 150000 &&
+             data.status is string && (data.status == 'Accepted' || data.status == 'Wrong Answer' || data.status == 'Compile Error' || data.status == 'Time Limit Exceeded' || data.status == 'Runtime Error') &&
+             data.runtime is string && data.runtime.size() <= 64 &&
+             data.memory is string && data.memory.size() <= 64 &&
+             data.timestamp is string && data.timestamp.size() <= 128;
+    }
+
+    // Profiles Collection matched for each individual user namespace
+    match /profiles/{userId} {
+      allow read: if isOwner(userId);
+      allow create: if isOwner(userId) && isValidUserProfile(incoming()) && isValidId(userId);
+      allow update: if isOwner(userId) && isValidUserProfile(incoming()) && 
+                    incoming().uid == existing().uid && 
+                    incoming().email == existing().email;
+      allow delete: if false;
+
+      // Submissions subcollection
+      match /submissions/{submissionId} {
+        allow read: if isOwner(userId);
+        allow create: if isOwner(userId) && isValidSubmission(incoming()) && isValidId(submissionId) && incoming().userId == userId;
+        allow update, delete: if false; // Once saved and registered, historical attempts are locked and immutable
+      }
+    }
+  }
+}

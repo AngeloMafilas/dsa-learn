@@ -1,0 +1,68 @@
+{
+  "entities": {
+    "UserProfile": {
+      "title": "UserProfile",
+      "description": "Represents the coding rank, platform stats, solved problem counts, and developer activity map of a registered user.",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "description": "The unique user authentication ID." },
+        "email": { "type": "string", "format": "email", "description": "The email address of the developer." },
+        "displayName": { "type": "string", "description": "The custom avatar handle or real name." },
+        "photoURL": { "type": "string", "description": "Image URL of the user avatar profile." },
+        "rank": { "type": "number", "description": "Global AlgoCode ranking representation." },
+        "solvedCount": {
+          "type": "object",
+          "description": "Solved problem counter grouped by Difficulty tier."
+        },
+        "totalSolved": { "type": "number", "description": "Total sum count of successfully cleared coding challenges." },
+        "streak": { "type": "number", "description": "Current consecutive active days count." },
+        "topicMastery": {
+          "type": "object",
+          "description": "Map representation storing mastery percentage by individual topic tag keys."
+        },
+        "heatmapData": {
+          "type": "object",
+          "description": "Activity map tracking daily submissions."
+        }
+      },
+      "required": ["uid", "email", "displayName", "rank", "solvedCount", "totalSolved", "streak", "topicMastery", "heatmapData"]
+    },
+    "Submission": {
+      "title": "Submission",
+      "description": "Standard code attempt submission tracking compile results, error outputs, run parameters, and metadata metrics.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Unique auto-generated attempt ID." },
+        "userId": { "type": "string", "description": "Target author UID linking to their profile entry." },
+        "problemId": { "type": "string", "description": "Target reference challenge string identification id." },
+        "problemTitle": { "type": "string", "description": "Literal problem title name." },
+        "difficulty": { "type": "string", "enum": ["Easy", "Medium", "Hard"] },
+        "language": { "type": "string" },
+        "code": { "type": "string" },
+        "status": { "type": "string", "enum": ["Accepted", "Wrong Answer", "Compile Error", "Time Limit Exceeded", "Runtime Error"] },
+        "runtime": { "type": "string" },
+        "memory": { "type": "string" },
+        "timestamp": { "type": "string", "format": "date-time" },
+        "stdout": { "type": "string" },
+        "errorDetails": { "type": "string" },
+        "beatsRuntimePercent": { "type": "number" },
+        "beatsMemoryPercent": { "type": "number" },
+        "failedTestCase": {
+          "type": "object",
+          "description": "Inlined sample showing failed validation cases if wrong."
+        }
+      },
+      "required": ["id", "userId", "problemId", "problemTitle", "difficulty", "language", "code", "status", "runtime", "memory", "timestamp"]
+    }
+  },
+  "firestore": {
+    "/profiles/{userId}": {
+      "schema": "UserProfile",
+      "description": "Primary user configuration profiles mapping their global platform stats index."
+    },
+    "/profiles/{userId}/submissions/{submissionId}": {
+      "schema": "Submission",
+      "description": "Target attempt submission logs stored inside each parent developer's namespace."
+    }
+  }
+}

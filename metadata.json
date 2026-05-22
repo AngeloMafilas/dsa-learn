@@ -1,0 +1,6 @@
+{
+  "name": "AlgoCode",
+  "description": "A fully functional algorithm practice platform featuring a rich set of coding problems, an interactive IDE, persistent submission history, user performance analytics, and Firebase authentication.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
