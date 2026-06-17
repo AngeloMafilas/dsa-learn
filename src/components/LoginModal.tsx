@@ -86,7 +86,8 @@ export const LoginModal: React.FC<LoginModalProps> = ({
         onLoginSuccess(profile);
         onClose();
       } catch (err: any) {
-        setError('Google sign-in failed. Please verify popup connection.');
+        console.error("Google Auth Error:", err);
+        setError(`Google sign-in failed: ${err.message || 'Unknown error'}`);
       } finally {
         setLoading(false);
       }

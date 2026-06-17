@@ -82,9 +82,44 @@ export default function App() {
     setIsLoginOpen(false);
   };
 
+  const [allProblems, setAllProblems] = useState<Problem[]>(problemsList);
+  const [currentProblemDetails, setCurrentProblemDetails] = useState<Problem | null>(null);
+
+  useEffect(() => {
+    fetch('/api/problems')
+      .then(res => res.json())
+      .then(data => {
+        if (data.status === 'ok' && data.problems) {
+          // Place the static curated 11 items at the top or just replace all
+          // We'll replace all since the backend has all 2913.
+          setAllProblems(data.problems as Problem[]);
+        }
+      })
+      .catch(console.error);
+  }, []);
+
+  useEffect(() => {
+    if (selectedProblemId) {
+      const localProb = problemsList.find(p => p.id === selectedProblemId);
+      fetch(`/api/problems/${selectedProblemId}`)
+        .then(res => res.json())
+        .then(data => {
+          if (data.status === 'ok' && data.problem) {
+            setCurrentProblemDetails(data.problem as Problem);
+          } else if (localProb) {
+            setCurrentProblemDetails(localProb);
+          }
+        })
+        .catch(err => {
+          console.error(err);
+          if (localProb) setCurrentProblemDetails(localProb);
+        });
+    }
+  }, [selectedProblemId]);
+
   // Find active problem mapping helper
   const activeProblem = useState<Problem | null>(null);
-  const currentProblem = problemsList.find(p => p.id === selectedProblemId) || problemsList[0];
+  const currentProblem = currentProblemDetails || problemsList.find(p => p.id === selectedProblemId) || problemsList[0];
 
   return (
     <div className={`min-h-screen ${theme === 'light' ? 'bg-gradient-to-br from-[#f8fafc] via-[#f1f5f9] to-[#ebd3be]/10 text-neutral-800' : 'bg-gradient-to-br from-[#07090e] via-[#0b0f19] to-[#080b13] text-neutral-100'} transition-all duration-300 flex flex-col font-sans selection:bg-amber-500/30 selection:text-amber-900`}>
@@ -110,6 +145,7 @@ export default function App() {
         {currentTab === 'problems' && (
           <div className="animate-fade-in duration-300">
             <ProblemList
+              problems={allProblems}
               profile={activeProfile}
               onSelectProblem={(id) => {
                 setSelectedProblemId(id);

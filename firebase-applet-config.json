@@ -1,10 +1,9 @@
 {
-  "projectId": "enduring-particle-1b34d",
-  "appId": "1:467744857483:web:9cb784f8c8427d170c238e",
-  "apiKey": "AIzaSyBmJy9hb3uR_cqnLHhlZAPq23wy8HXG7BM",
-  "authDomain": "enduring-particle-1b34d.firebaseapp.com",
-  "firestoreDatabaseId": "ai-studio-3db6449f-01d4-4e77-b2a0-f05f7b05a693",
-  "storageBucket": "enduring-particle-1b34d.firebasestorage.app",
-  "messagingSenderId": "467744857483",
-  "measurementId": ""
+  "projectId": "dsa-learn-47",
+  "appId": "1:513888527879:web:73eccbabf3938211536ca2",
+  "apiKey": "AIzaSyDoMXwMwc03Bh9o8YZ0k5c_iXSN6X9WTjU",
+  "authDomain": "dsa-learn-47.firebaseapp.com",
+  "storageBucket": "dsa-learn-47.firebasestorage.app",
+  "messagingSenderId": "513888527879",
+  "measurementId": "G-BGVR471G65"
 }
