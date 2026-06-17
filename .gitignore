@@ -9,3 +9,4 @@ coverage/
 .claude/
 .agents/
 .github/agents/
+.agents/skills/
